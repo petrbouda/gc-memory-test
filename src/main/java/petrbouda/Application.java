@@ -1,44 +1,53 @@
 package petrbouda;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static petrbouda.Utility.*;
 
 public class Application {
 
-    public static void main(String[] args) throws Exception {
-        ExecutorService executor = Executors.newFixedThreadPool(5);
+    private static final int MIN_GARBAGE = 100_000;
+    private static final int MAX_GARBAGE = 150_000;
+    private static final int MIN_LIFESET = 40_000;
+    private static final int MAX_LIFESET = 60_000;
 
-        long start = System.currentTimeMillis();
-        for (int i = 0; i < 25; i++) {
-            /*
-             * To keep some LiveObjects longer in memory.
-             */
-            Task task1 = new Task(i, "A" + i);
-            List<Contact> contacts1 = task1.call();
+    private static final int PARALLEL_USERS = 4;
 
-            Task task2 = new Task(i, "B" + i);
-            List<Contact> contacts2 = task2.call();
+    public static void main(String[] args) {
+        AtomicInteger counter = new AtomicInteger();
 
-            Task task3 = new Task(i, "C" + i);
-            List<Contact> contacts3 = task3.call();
+        Runnable runnable = () -> {
+            Contact[] biggerLifeSet = new Contact[]{};
+            Contact[] longerLifeSet = new Contact[]{};
 
-            Future<List<Contact>> submit4 = executor.submit(new Task(i, "D" + i));
-            Future<List<Contact>> submit5 = executor.submit(new Task(i, "E" + i));
+            for (int i = 0; i < 20; i++) {
+                int index = counter.incrementAndGet();
+                System.out.println("INDEX: " + index);
 
-            System.out.println("INDEX: " + i);
-            System.out.println("Contacts A: " + contacts1.size());
-            System.out.println("Contacts B: " + contacts2.size());
-            System.out.println("Contacts C: " + contacts3.size());
-            System.out.println("Contacts D: " + submit4.get(10000, TimeUnit.SECONDS).size());
-            System.out.println("Contacts E: " + submit5.get(10000, TimeUnit.SECONDS).size());
+                Contact[] contacts1 = generate("contact-1 " + index,
+                        MIN_GARBAGE, MAX_GARBAGE, MIN_LIFESET, MAX_LIFESET);
+                Contact[] contacts2 = generate("contact-2 " + index,
+                        MIN_GARBAGE, MAX_GARBAGE, MIN_LIFESET, MAX_LIFESET);
+
+                biggerLifeSet = biggerLifeSet(index, biggerLifeSet, contacts1);
+                longerLifeSet = longerLifeSet(index, longerLifeSet, contacts2);
+
+                System.out.println("Size ALL: " + (biggerLifeSet.length + longerLifeSet.length + contacts1.length));
+            }
+
+            if (counter.get() > 5000) {
+                System.exit(0);
+            }
+        };
+
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(4);
+
+        // More parallel users
+        for (int i = 0; i < PARALLEL_USERS; i++) {
+            executor.scheduleWithFixedDelay(runnable, 0, 50, TimeUnit.MILLISECONDS);
         }
-        long end = System.currentTimeMillis() - start;
-
-        System.out.println("-------------------------------------");
-        System.out.println("Total Time: " + end);
-        System.out.println("-------------------------------------");
     }
 }

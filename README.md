@@ -50,5 +50,5 @@ Remove Optimizations
 java -jar gcviewer.jar logs/gc_serial.log summary/serial.csv &&
 java -jar gcviewer.jar logs/gc_parallel.log summary/parallel.csv &&
 java -jar gcviewer.jar logs/gc_cms.log summary/cms.csv &&
-java -jar gcviewer.jar logs/gc_g1.log summary/g1.csv &&
+java -jar gcviewer.jar logs/gc_g1.log summary/g1.csv
 ```
