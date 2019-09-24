@@ -1,4 +1,11 @@
-# gc-memory-test
+# GC Memory Test
+
+```
+java -Xmx512m -Xlog:gc+phases=info --module-path target/classes --module gctester/pbouda.gctester.Application | grep gc,phases
+```
+
+
+## Legacy Configuration
 
 Application Generation Garbage for Comparison of Garbage Collectors
 

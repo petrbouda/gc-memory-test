@@ -1,7 +1,10 @@
-package petrbouda;
+package pbouda.gctester;
 
 import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static pbouda.gctester.Application.LEVEL;
+import static pbouda.gctester.Application.LOGGER;
 
 class Utility {
 
@@ -21,11 +24,11 @@ class Utility {
         return index % 2 == 0 ? getSample(.5f, newLifeSet) : newLifeSet;
     }
 
-    static Contact[] getSample(float percentage, Contact[] contacts) {
+    private static Contact[] getSample(float percentage, Contact[] contacts) {
         return Arrays.copyOf(contacts, Math.round(contacts.length * percentage));
     }
 
-    static Contact[] combine(Contact[] a, Contact[] b) {
+    private static Contact[] combine(Contact[] a, Contact[] b) {
         int length = a.length + b.length;
         Contact[] result = new Contact[length];
         System.arraycopy(a, 0, result, 0, a.length);
@@ -39,16 +42,14 @@ class Utility {
 
         int overallSize = 0;
         for (int i = 0; i < random.nextInt(minLifeSet, maxLifeSet); i++) {
-            String garbage = new String(" Garbage: " + i + " Index: " + label);
+            String garbage = "Garbage: " + i + " Index: " + label;
             overallSize += garbage.length();
         }
-        System.out.println(label + ": Size: " + overallSize);
+        LOGGER.log(LEVEL, label + ": Size: " + overallSize);
 
         Contact[] contacts = new Contact[lifesetIteration];
         for (int i = 0; i < lifesetIteration; i++) {
-            contacts[i] = new Contact(
-                    new String("FirstName " + i + " | " + label),
-                    new String("LastName " + i + " | " + label));
+            contacts[i] = new Contact("FirstName " + i + " | " + label, "LastName " + i + " | " + label);
         }
         return contacts;
     }

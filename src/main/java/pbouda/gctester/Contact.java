@@ -1,9 +1,9 @@
-package petrbouda;
+package pbouda.gctester;
 
 class Contact {
 
-    final String firstname;
-    final String lastname;
+    private final String firstname;
+    private final String lastname;
 
     Contact(String firstname, String lastname) {
         this.firstname = firstname;
